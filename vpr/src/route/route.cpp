@@ -11,6 +11,7 @@
 #include "route_profiling.h"
 #include "route_utils.h"
 #include "vtr_time.h"
+#include "glob.h"
 
 bool route(const Netlist<>& net_list,
            int width_fac,

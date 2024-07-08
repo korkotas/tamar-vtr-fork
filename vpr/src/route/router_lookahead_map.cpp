@@ -48,6 +48,9 @@
 #    include "serdes_utils.h"
 #endif /* VTR_ENABLE_CAPNPROTO */
 
+#include "vtr_ndmatrix.h"
+
+
 static constexpr int VALID_NEIGHBOR_NUMBER = 3;
 
 /* when a list of delay/congestion entries at a coordinate in Cost_Entry is boiled down to a single
