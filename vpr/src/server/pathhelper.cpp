@@ -21,7 +21,7 @@ static void collect_crit_path_metadata(std::stringstream& ss, const std::vector<
     ss << "#RPT METADATA:\n";
     ss << "path_index/clock_launch_path_elements_num/arrival_path_elements_num\n";
     std::size_t counter = 0;
-    for (const tatum::TimingPath& path: paths) {
+    for (const tatum::TimingPath& path : paths) {
         std::size_t offset_index = path.clock_launch_path().elements().size();
         std::size_t selectable_items = path.data_arrival_path().elements().size();
         ss << counter << "/" << offset_index << "/" << selectable_items << "\n";
@@ -34,8 +34,8 @@ static void collect_crit_path_metadata(std::stringstream& ss, const std::vector<
  */
 CritPathsResultPtr calc_critical_path(const std::string& report_type, int crit_path_num, e_timing_report_detail details_level, bool is_flat_routing) {
     // shortcuts
-    const std::shared_ptr<SetupHoldTimingInfo>& timing_info = g_vpr_ctx.server().timing_info();
-    const std::shared_ptr<RoutingDelayCalculator>& routing_delay_calc = g_vpr_ctx.server().routing_delay_calc();
+    const std::shared_ptr<SetupHoldTimingInfo>& timing_info = g_vpr_ctx.server().timing_info;
+    const std::shared_ptr<RoutingDelayCalculator>& routing_delay_calc = g_vpr_ctx.server().routing_delay_calc;
 
     auto& timing_ctx = g_vpr_ctx.timing();
     auto& atom_ctx = g_vpr_ctx.atom();
