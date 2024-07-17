@@ -576,15 +576,14 @@ bool route(const Netlist<>& net_list,
      * 
      * 
     */
-    if (itry == 1) {
-        VTR_LOG_DEBUG("\n\n\n\ntamar starting\n\n\n\n");
-        compute_directional_lookahead(device_ctx.rr_graph, route_ctx);
-    }
+    VTR_LOG("\n\n\n\ntamar starting\n\n\n\n");
+    compute_directional_lookahead(device_ctx.rr_graph, route_ctx);
 
     /* Write out partition tree logs (no-op if debug option not set) */
     PartitionTreeDebug::write("partition_tree.log");
 
     if (success) {
+        VTR_LOG("Testing Tamarz \n");
         VTR_LOG("Restoring best routing\n");
 
         auto& router_ctx = g_vpr_ctx.mutable_routing();

@@ -6,7 +6,7 @@
 #
 
 // Maximum hops constant
-const int KMAX = 5;
+const int KMAX = 4;
 const float ALPHA_POWERS[] = {
     1.0f,
     0.5f, 
