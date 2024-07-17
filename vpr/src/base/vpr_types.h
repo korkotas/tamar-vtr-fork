@@ -1739,6 +1739,8 @@ constexpr bool is_src_sink(e_rr_type type) { return (type == SOURCE || type == S
  *   @param backward_path_cost  Total cost of the path up to and including this
  *                     node.
  *   @param occ        The current occupancy of the associated rr node
+ *   @param directional_cost  array for storing the directional (NE, NW, SE, SW) cost of the node
+ *                            as according to the directionally aware lookahead calculation
  */
 struct t_rr_node_route_inf {
     RREdgeId prev_edge;
@@ -1746,6 +1748,7 @@ struct t_rr_node_route_inf {
     float acc_cost;
     float path_cost;
     float backward_path_cost;
+    float directional_cost[4];
 
   public: //Accessors
     short occ() const { return occ_; }

@@ -13,6 +13,8 @@
 #include "vtr_time.h"
 #include "glob.h"
 
+#include "router_lookahead_directional.h"
+
 bool route(const Netlist<>& net_list,
            int width_fac,
            const t_router_opts& router_opts,
@@ -562,6 +564,21 @@ bool route(const Netlist<>& net_list,
         if (router_opts.congestion_analysis) profiling::congestion_analysis();
         if (router_opts.fanout_analysis) profiling::time_on_fanout_analysis();
         // profiling::time_on_criticality_analysis();
+    }
+
+    /**
+     * 
+     * 
+     * 
+     * Supposedly everything has already been updated here
+     * 
+     * 
+     * 
+     * 
+    */
+    if (itry == 1) {
+        VTR_LOG_DEBUG("\n\n\n\ntamar starting\n\n\n\n");
+        compute_directional_lookahead(device_ctx.rr_graph, route_ctx);
     }
 
     /* Write out partition tree logs (no-op if debug option not set) */
