@@ -244,6 +244,7 @@ bool route(const Netlist<>& net_list,
 
     print_route_status_header();
     for (itry = 1; itry <= router_opts.max_router_iterations; ++itry) {
+
         /* Reset "is_routed" and "is_fixed" flags to indicate nets not pre-routed (yet) */
         for (auto net_id : net_list.nets()) {
             route_ctx.net_status.set_is_routed(net_id, false);
@@ -564,26 +565,32 @@ bool route(const Netlist<>& net_list,
         if (router_opts.congestion_analysis) profiling::congestion_analysis();
         if (router_opts.fanout_analysis) profiling::time_on_fanout_analysis();
         // profiling::time_on_criticality_analysis();
+
+        /**
+         * 
+         * 
+         * 
+         * Supposedly everything has already been updated here
+         * 
+         * 
+         * 
+         * 
+        */
+        
+        if (itry % 5 == 0) {
+            VTR_LOG("\n\n\n\n starting directional lookahead for itry %d\n", itry);
+            VTR_LOG("num nodes: %d\n", device_ctx.rr_graph.num_nodes());
+            VTR_LOG("pres factor %g\n", pres_fac);
+            compute_directional_lookahead(device_ctx.rr_graph, route_ctx, pres_fac);
+        }
     }
 
-    /**
-     * 
-     * 
-     * 
-     * Supposedly everything has already been updated here
-     * 
-     * 
-     * 
-     * 
-    */
-    VTR_LOG("\n\n\n\ntamar starting\n\n\n\n");
-    compute_directional_lookahead(device_ctx.rr_graph, route_ctx);
+    
 
     /* Write out partition tree logs (no-op if debug option not set) */
     PartitionTreeDebug::write("partition_tree.log");
 
     if (success) {
-        VTR_LOG("Testing Tamarz \n");
         VTR_LOG("Restoring best routing\n");
 
         auto& router_ctx = g_vpr_ctx.mutable_routing();

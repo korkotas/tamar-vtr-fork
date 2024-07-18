@@ -24,8 +24,12 @@
  * @param hops the number of hops for exponential decay
  * @param route_ctx the routing context
 */
-float cost_func(RRNodeId node_idx, int hops, RoutingContext& route_ctx) {
-    return route_ctx.rr_node_route_inf[node_idx].acc_cost * ALPHA_POWERS[hops]; 
+float cost_func(const RRGraphView& rr_graph, RRNodeId node_idx, int hops, RoutingContext& route_ctx, float pres_fac) {
+    float present_cost = route_ctx.rr_node_route_inf[node_idx].occ() - rr_graph.node_capacity(node_idx);
+    if (present_cost < 0) 
+        present_cost = 0;
+    //return (1 + present_cost * pres_fac) * ALPHA_POWERS[hops]; 
+    return route_ctx.rr_node_route_inf[node_idx].acc_cost * ALPHA_POWERS[hops];
 }
 
 
@@ -53,14 +57,17 @@ Cong_Direction get_direction(RRNodeId from_node, RRNodeId to_node) {
  * @param node_idx id of the current neighbor for exploration
  * @param lookahead_storage pointer to the parent node's routing cost storage
 */
-void sum_neighbors(const RRGraphView& rr_graph, RRNodeId node_idx, RRNodeId parent_idx, int hops, std::set<RRNodeId> fx, RoutingContext& route_ctx) {
+void sum_neighbors(const RRGraphView& rr_graph, RRNodeId node_idx, RRNodeId parent_idx, int hops, std::set<RRNodeId>& fx, RoutingContext& route_ctx, float pres_fac) {
     // Skip if node already visited
-    if (fx.find(node_idx) != fx.end()) {
+    if (fx.find(node_idx) != fx.end())
         return;
-    }
 
     if (hops > KMAX)
         return;
+    
+    // Add the cost of the current node
+    auto direction = get_direction(parent_idx, node_idx);
+    route_ctx.rr_node_route_inf[parent_idx].directional_cost[direction] += cost_func(rr_graph, node_idx, hops, route_ctx, pres_fac);
 
     // Keep track of already visited nodes
     fx.insert(node_idx);
@@ -68,12 +75,9 @@ void sum_neighbors(const RRGraphView& rr_graph, RRNodeId node_idx, RRNodeId pare
     // Iterate over edges of node to get neighbors
     for (t_edge_size edge : rr_graph.edges(node_idx)) {
         RRNodeId neighbor = rr_graph.edge_sink_node(node_idx, edge);
-        auto direction = get_direction(node_idx, neighbor);
 
         // Update the cost with this direction
-        route_ctx.rr_node_route_inf[parent_idx].directional_cost[direction] += cost_func(node_idx, hops, route_ctx);
-        sum_neighbors(rr_graph, neighbor, parent_idx, hops + 1, fx, route_ctx);
-
+        sum_neighbors(rr_graph, neighbor, parent_idx, hops + 1, fx, route_ctx, pres_fac);
     }
 }
 
@@ -86,7 +90,7 @@ void sum_neighbors(const RRGraphView& rr_graph, RRNodeId node_idx, RRNodeId pare
  * @param route_ctx the routing context that has access to each node cost parameters
  * 
 */
-void compute_directional_lookahead(const RRGraphView& rr_graph, RoutingContext& route_ctx) {
+void compute_directional_lookahead(const RRGraphView& rr_graph, RoutingContext& route_ctx, float pres_fac) {
     int num_rr_nodes = rr_graph.num_nodes();
 
     // Iterate over every node
@@ -101,7 +105,11 @@ void compute_directional_lookahead(const RRGraphView& rr_graph, RoutingContext& 
 
         // The set to keep track of which nodes were visited
         std::set<RRNodeId> fx;
-        sum_neighbors(rr_graph, node_idx, node_idx, 0, fx, route_ctx);
+        sum_neighbors(rr_graph, node_idx, node_idx, 0, fx, route_ctx, pres_fac);
+
+        //VTR_LOG("%d %g %g %g %g\n", route_ctx.rr_node_route_inf[node_idx].occ(), route_ctx.rr_node_route_inf[node_idx].directional_cost[0],
+        //route_ctx.rr_node_route_inf[node_idx].directional_cost[1],route_ctx.rr_node_route_inf[node_idx].directional_cost[2],route_ctx.rr_node_route_inf[node_idx].directional_cost[3]);
+
     }
 }
 

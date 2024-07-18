@@ -5,6 +5,8 @@
 #include "four_ary_heap.h"
 #include "bucket.h"
 #include "rr_graph_fwd.h"
+#include "router_lookahead_directional.h"
+
 
 static bool relevant_node_to_target(const RRGraphView* rr_graph,
                                     RRNodeId node_to_add,
@@ -887,13 +889,19 @@ void ConnectionRouter<Heap>::add_route_tree_node_to_heap(
     // float expected_cost = router_lookahead_.get_expected_cost(inode, target_node, cost_params, R_upstream);
 
     if (!rcv_path_manager.is_enabled()) {
+        // Get directional lookahead cost
+        auto dir = get_direction(inode, target_node);
+        auto& route_ctx = g_vpr_ctx.mutable_routing();
+        auto dir_cost = route_ctx.rr_node_route_inf[inode].directional_cost[dir];
+
         // tot_cost = backward_path_cost + cost_params.astar_fac * expected_cost;
         float tot_cost = backward_path_cost
                          + cost_params.astar_fac
-                               * router_lookahead_.get_expected_cost(inode,
+                               * (router_lookahead_.get_expected_cost(inode,
                                                                      target_node,
                                                                      cost_params,
-                                                                     R_upstream);
+                                                                     R_upstream) //);
+                                                                     + dir_cost);
         VTR_LOGV_DEBUG(router_debug_, "  Adding node %8d to heap from init route tree with cost %g (%s)\n",
                        inode,
                        tot_cost,
