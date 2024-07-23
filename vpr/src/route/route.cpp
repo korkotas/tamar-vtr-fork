@@ -576,13 +576,15 @@ bool route(const Netlist<>& net_list,
          * 
          * 
         */
-        
-        if (itry % 5 == 0) {
-            VTR_LOG("\n\n\n\n starting directional lookahead for itry %d\n", itry);
-            VTR_LOG("num nodes: %d\n", device_ctx.rr_graph.num_nodes());
-            VTR_LOG("pres factor %g\n", pres_fac);
-            compute_directional_lookahead(device_ctx.rr_graph, route_ctx, pres_fac);
+        if (router_opts.dynamic_lookahead) {
+            if (itry == 1) {
+                VTR_LOG("\n\n\n\n starting directional lookahead for itry %d\n", itry);
+                VTR_LOG("num nodes: %d\n", device_ctx.rr_graph.num_nodes());
+                VTR_LOG("pres factor %g\n", pres_fac);
+                compute_directional_lookahead(device_ctx.rr_graph, route_ctx, pres_fac);
+            }
         }
+        
     }
 
     

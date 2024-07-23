@@ -496,6 +496,10 @@ static void SetupRouterOpts(const t_options& Options, t_router_opts* RouterOpts)
     RouterOpts->flat_routing = Options.flat_routing;
     RouterOpts->has_choking_spot = Options.has_choking_spot;
     RouterOpts->with_timing_analysis = Options.timing_analysis;
+
+
+    // Set dynamic lookahead options
+    RouterOpts->dynamic_lookahead = Options.dynamic_lookahead;
 }
 
 static void SetupAnnealSched(const t_options& Options,

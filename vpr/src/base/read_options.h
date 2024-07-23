@@ -254,6 +254,12 @@ struct t_options {
     argparse::ArgValue<e_post_synth_netlist_unconn_handling> post_synth_netlist_unconn_input_handling;
     argparse::ArgValue<e_post_synth_netlist_unconn_handling> post_synth_netlist_unconn_output_handling;
     argparse::ArgValue<std::string> write_timing_summary;
+
+    /* Dynamic lookahead options */
+    argparse::ArgValue<bool> dynamic_lookahead; // On or Off
+    argparse::ArgValue<bool> cost_func; // Accumulated cost or present cost
+    argparse::ArgValue<int> comp_iters; // Recompute in this amount of iterations
+    argparse::ArgValue<int> dir_scale_fac; // Dynamic lookahead multiplying factor
 };
 
 argparse::ArgumentParser create_arg_parser(const std::string& prog_name, t_options& args);

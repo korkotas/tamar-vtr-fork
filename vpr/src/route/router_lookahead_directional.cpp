@@ -121,8 +121,9 @@ void compute_directional_lookahead(const RRGraphView& rr_graph, RoutingContext& 
                 route_ctx.rr_node_route_inf[node_idx].directional_cost[i] /= counters[i];
         }
 
-        //VTR_LOG("%d %g %g %g %g\n", route_ctx.rr_node_route_inf[node_idx].occ(), route_ctx.rr_node_route_inf[node_idx].directional_cost[0],
-        //route_ctx.rr_node_route_inf[node_idx].directional_cost[1],route_ctx.rr_node_route_inf[node_idx].directional_cost[2],route_ctx.rr_node_route_inf[node_idx].directional_cost[3]);
+        VTR_LOG("%g %g %g %g %d %d %d %d\n", route_ctx.rr_node_route_inf[node_idx].occ(), route_ctx.rr_node_route_inf[node_idx].directional_cost[0],
+        route_ctx.rr_node_route_inf[node_idx].directional_cost[1],route_ctx.rr_node_route_inf[node_idx].directional_cost[2],route_ctx.rr_node_route_inf[node_idx].directional_cost[3],
+        counters[0], counters[1], counters[2], counters[3]);
 
     }
 }

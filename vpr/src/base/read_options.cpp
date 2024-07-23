@@ -944,6 +944,10 @@ struct ParseRouterLookahead {
     }
 };
 
+/*struct ParseDynamicLookahead {
+    ConvertedValue<>
+}*/
+
 struct ParsePlaceDelayModel {
     ConvertedValue<PlaceDelayModelType> from_str(const std::string& str) {
         ConvertedValue<PlaceDelayModelType> conv_value;
@@ -2942,6 +2946,13 @@ argparse::ArgumentParser create_arg_parser(const std::string& prog_name, t_optio
             "Name of the output file that contains the NoC placement information."
             "The default name is 'vpr_noc_placement_output.txt'")
         .default_value("vpr_noc_placement_output.txt")
+        .show_in(argparse::ShowIn::HELP_ONLY);
+
+    auto& dyn_lookahead_grp = parser.add_argument_group("dynamic lookahead options");
+    dyn_lookahead_grp.add_argument<bool, ParseOnOff>(args.dynamic_lookahead, "--dynamic_lookahead")
+        .help(
+            "Activates the dynamic directional congestions lookahead")
+        .default_value("off")
         .show_in(argparse::ShowIn::HELP_ONLY);
 
 #ifndef NO_SERVER
