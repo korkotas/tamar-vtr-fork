@@ -32,10 +32,12 @@ float cost_func(const RRGraphView& rr_graph, RRNodeId node_idx, int hops, Routin
 Cong_Direction get_direction(RRNodeId from_node, RRNodeId to_node);
 
 // Recursive function to sum neighbors cost
-void sum_neighbors(const RRGraphView& rr_graph, RRNodeId node_idx, RRNodeId parent_idx, int hops, std::set<RRNodeId>& fx, RoutingContext& route_ctx, float pres_fac);
+void sum_neighbors(const RRGraphView& rr_graph, RRNodeId node_idx, RRNodeId parent_idx, int hops, std::set<RRNodeId>& fx, RoutingContext& route_ctx, float pres_fac, int* counters);
 
 // Function to compute directional lookahead for all nodes in the rr_graph
 void compute_directional_lookahead(const RRGraphView& rr_graph, RoutingContext& route_ctx, float pres_fac);
 
 // Function to recompute directional lookahead only for nodes in the bounding box
 void compute_directional_lookahead_bb();
+
+float get_directional_cong_cost(RoutingContext& route_ctx, RRNodeId from_node, RRNodeId to_node, const t_conn_cost_params& params);
