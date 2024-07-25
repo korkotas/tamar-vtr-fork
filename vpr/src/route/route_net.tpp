@@ -143,6 +143,8 @@ inline NetResultFlags route_net(ConnectionRouter& router,
     cost_params.pres_fac = pres_fac;
     cost_params.delay_budget = ((budgeting_inf.if_set()) ? &conn_delay_budget : nullptr);
 
+    cost_params.dir_scale_fac = router_opts.dir_scale_fac;
+
     // Pre-route to clock source for clock nets (marked as global nets)
     if (net_list.net_is_global(net_id) && router_opts.two_stage_clock_routing) {
         auto& route_constraints = route_ctx.constraints;

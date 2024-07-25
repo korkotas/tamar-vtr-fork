@@ -894,11 +894,11 @@ void ConnectionRouter<Heap>::add_route_tree_node_to_heap(
         // tot_cost = backward_path_cost + cost_params.astar_fac * expected_cost;
         float tot_cost = backward_path_cost
                          + cost_params.astar_fac
-                               * (router_lookahead_.get_expected_cost(inode,
+                               * router_lookahead_.get_expected_cost(inode,
                                                                      target_node,
                                                                      cost_params,
                                                                      R_upstream)
-                                                    + get_directional_cong_cost(route_ctx, inode, target_node, cost_params));
+                                                    + get_directional_cong_cost(route_ctx, inode, target_node, cost_params);
         VTR_LOGV_DEBUG(router_debug_, "  Adding node %8d to heap from init route tree with cost %g (%s)\n",
                        inode,
                        tot_cost,

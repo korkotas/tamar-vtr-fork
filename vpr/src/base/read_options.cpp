@@ -944,10 +944,6 @@ struct ParseRouterLookahead {
     }
 };
 
-/*struct ParseDynamicLookahead {
-    ConvertedValue<>
-}*/
-
 struct ParsePlaceDelayModel {
     ConvertedValue<PlaceDelayModelType> from_str(const std::string& str) {
         ConvertedValue<PlaceDelayModelType> conv_value;
@@ -2951,8 +2947,28 @@ argparse::ArgumentParser create_arg_parser(const std::string& prog_name, t_optio
     auto& dyn_lookahead_grp = parser.add_argument_group("dynamic lookahead options");
     dyn_lookahead_grp.add_argument<bool, ParseOnOff>(args.dynamic_lookahead, "--dynamic_lookahead")
         .help(
-            "Activates the dynamic directional congestions lookahead")
+            "Activates the dynamic directional congestions lookahead, default is off")
         .default_value("off")
+        .show_in(argparse::ShowIn::HELP_ONLY);
+    
+    dyn_lookahead_grp.add_argument<std::string>(args.cost_func, "--cost_func")
+        .help(
+            "Specifies which cost function to use during congestion estimation in the dynamic lookahead."
+            "Current options are acc (accumulated cost) and pres (present cost), default is acc")
+        .default_value("acc")
+        .show_in(argparse::ShowIn::HELP_ONLY);
+    
+    dyn_lookahead_grp.add_argument<int>(args.comp_iters, "--comp_iters")
+        .help(
+            "Sets the frequency of recomputation for the dynamic lookahead"
+            "Once in comp_iters the lookahead will be recomputed, default is off")
+        .default_value("1")
+        .show_in(argparse::ShowIn::HELP_ONLY);
+    
+    dyn_lookahead_grp.add_argument<float>(args.dir_scale_fac, "--dir_scale_fac")
+        .help(
+            "Specifies the dynamic lookahead value constant scaling factor, default is 1.2")
+        .default_value("1.2")
         .show_in(argparse::ShowIn::HELP_ONLY);
 
 #ifndef NO_SERVER

@@ -1484,6 +1484,9 @@ struct t_router_opts {
 
     // Dynamic lookahead options
     bool dynamic_lookahead;
+    std::string cost_func; 
+    int comp_iters; 
+    float dir_scale_fac;
 };
 
 struct t_analysis_opts {

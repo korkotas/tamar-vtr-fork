@@ -26,16 +26,16 @@ typedef enum {
 } Cong_Direction;
 
 // Function for calculating the cost for the lookahead
-float cost_func(const RRGraphView& rr_graph, RRNodeId node_idx, int hops, RoutingContext& route_ctx, float pres_fac);
+float cost_func(const RRGraphView& rr_graph, RRNodeId node_idx, int hops, RoutingContext& route_ctx, float pres_fac, bool cost_func_param);
 
 // Function to get direction based on the difference in x and y coordinates
 Cong_Direction get_direction(RRNodeId from_node, RRNodeId to_node);
 
 // Recursive function to sum neighbors cost
-void sum_neighbors(const RRGraphView& rr_graph, RRNodeId node_idx, RRNodeId parent_idx, int hops, std::set<RRNodeId>& fx, RoutingContext& route_ctx, float pres_fac, int* counters);
+void sum_neighbors(const RRGraphView& rr_graph, RRNodeId node_idx, RRNodeId parent_idx, int hops, std::set<RRNodeId>& fx, RoutingContext& route_ctx, float pres_fac, int* counters, bool cost_func_param);
 
 // Function to compute directional lookahead for all nodes in the rr_graph
-void compute_directional_lookahead(const RRGraphView& rr_graph, RoutingContext& route_ctx, float pres_fac);
+void compute_directional_lookahead(const RRGraphView& rr_graph, RoutingContext& route_ctx, float pres_fac, bool cost_func_param);
 
 // Function to recompute directional lookahead only for nodes in the bounding box
 void compute_directional_lookahead_bb();

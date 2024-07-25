@@ -91,6 +91,9 @@ static void do_one_route(const Netlist<>& net_list,
     cost_params.criticality = router_opts.max_criticality;
     cost_params.astar_fac = router_opts.astar_fac;
     cost_params.bend_cost = router_opts.bend_cost;
+    
+    // Dynamic lookahead
+    cost_params.dir_scale_fac = router_opts.dir_scale_fac;
 
     route_budgets budgeting_inf(net_list, is_flat);
 

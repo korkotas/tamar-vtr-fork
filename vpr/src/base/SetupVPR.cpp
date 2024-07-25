@@ -500,6 +500,9 @@ static void SetupRouterOpts(const t_options& Options, t_router_opts* RouterOpts)
 
     // Set dynamic lookahead options
     RouterOpts->dynamic_lookahead = Options.dynamic_lookahead;
+    RouterOpts->cost_func = Options.cost_func;
+    RouterOpts->comp_iters = int(Options.comp_iters);
+    RouterOpts->dir_scale_fac = float(Options.dir_scale_fac);
 }
 
 static void SetupAnnealSched(const t_options& Options,

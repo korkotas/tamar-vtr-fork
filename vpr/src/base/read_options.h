@@ -257,9 +257,9 @@ struct t_options {
 
     /* Dynamic lookahead options */
     argparse::ArgValue<bool> dynamic_lookahead; // On or Off
-    argparse::ArgValue<bool> cost_func; // Accumulated cost or present cost
+    argparse::ArgValue<std::string> cost_func; // Accumulated cost or present cost
     argparse::ArgValue<int> comp_iters; // Recompute in this amount of iterations
-    argparse::ArgValue<int> dir_scale_fac; // Dynamic lookahead multiplying factor
+    argparse::ArgValue<float> dir_scale_fac; // Dynamic lookahead multiplying factor
 };
 
 argparse::ArgumentParser create_arg_parser(const std::string& prog_name, t_options& args);

@@ -24,12 +24,16 @@
  * @param hops the number of hops for exponential decay
  * @param route_ctx the routing context
 */
-float cost_func(const RRGraphView& rr_graph, RRNodeId node_idx, int hops, RoutingContext& route_ctx, float pres_fac) {
-    float present_cost = route_ctx.rr_node_route_inf[node_idx].occ() - rr_graph.node_capacity(node_idx);
+float cost_func(const RRGraphView& rr_graph, RRNodeId node_idx, int hops, RoutingContext& route_ctx, float pres_fac, bool cost_func_param) {
+    float present_cost = route_ctx.rr_node_route_inf[node_idx].occ();
     if (present_cost < 0) 
         present_cost = 0;
-    //return (1 + present_cost * pres_fac) * ALPHA_POWERS[hops]; 
-    return route_ctx.rr_node_route_inf[node_idx].acc_cost * ALPHA_POWERS[hops];
+    if (!cost_func_param) {
+        return (1 + present_cost * pres_fac) * ALPHA_POWERS[hops];
+    }
+    else {
+        return route_ctx.rr_node_route_inf[node_idx].acc_cost * ALPHA_POWERS[hops];
+    }
 }
 
 
@@ -57,7 +61,7 @@ Cong_Direction get_direction(RRNodeId from_node, RRNodeId to_node) {
  * @param node_idx id of the current neighbor for exploration
  * @param lookahead_storage pointer to the parent node's routing cost storage
 */
-void sum_neighbors(const RRGraphView& rr_graph, RRNodeId node_idx, RRNodeId parent_idx, int hops, std::set<RRNodeId>& fx, RoutingContext& route_ctx, float pres_fac, int* counters) {
+void sum_neighbors(const RRGraphView& rr_graph, RRNodeId node_idx, RRNodeId parent_idx, int hops, std::set<RRNodeId>& fx, RoutingContext& route_ctx, float pres_fac, int* counters, bool cost_func_param) {
     // Skip if node already visited
     if (fx.find(node_idx) != fx.end())
         return;
@@ -68,7 +72,7 @@ void sum_neighbors(const RRGraphView& rr_graph, RRNodeId node_idx, RRNodeId pare
     // Add the cost of the current node
     auto direction = get_direction(parent_idx, node_idx);
     counters[direction]++;
-    route_ctx.rr_node_route_inf[parent_idx].directional_cost[direction] += cost_func(rr_graph, node_idx, hops, route_ctx, pres_fac);
+    route_ctx.rr_node_route_inf[parent_idx].directional_cost[direction] += cost_func(rr_graph, node_idx, hops, route_ctx, pres_fac, cost_func_param);
 
     // Keep track of already visited nodes
     fx.insert(node_idx);
@@ -78,7 +82,7 @@ void sum_neighbors(const RRGraphView& rr_graph, RRNodeId node_idx, RRNodeId pare
         RRNodeId neighbor = rr_graph.edge_sink_node(node_idx, edge);
 
         // Update the cost with this direction
-        sum_neighbors(rr_graph, neighbor, parent_idx, hops + 1, fx, route_ctx, pres_fac, counters);
+        sum_neighbors(rr_graph, neighbor, parent_idx, hops + 1, fx, route_ctx, pres_fac, counters, cost_func_param);
     }
 }
 
@@ -91,7 +95,7 @@ void sum_neighbors(const RRGraphView& rr_graph, RRNodeId node_idx, RRNodeId pare
  * @param route_ctx the routing context that has access to each node cost parameters
  * 
 */
-void compute_directional_lookahead(const RRGraphView& rr_graph, RoutingContext& route_ctx, float pres_fac) {
+void compute_directional_lookahead(const RRGraphView& rr_graph, RoutingContext& route_ctx, float pres_fac, bool cost_func_param) {
     int num_rr_nodes = rr_graph.num_nodes();
 
     // The set to keep track of which nodes were visited
@@ -112,18 +116,14 @@ void compute_directional_lookahead(const RRGraphView& rr_graph, RoutingContext& 
             counters[i] = 0;
         }
         fx.clear();
-        
-        sum_neighbors(rr_graph, node_idx, node_idx, 0, fx, route_ctx, pres_fac, counters);
+
+        sum_neighbors(rr_graph, node_idx, node_idx, 0, fx, route_ctx, pres_fac, counters, cost_func_param);
 
         // Calculate the averages
         for (int i  = 0; i < NUM_DIRECTIONS; i++) {
             if (counters[i] != 0)
                 route_ctx.rr_node_route_inf[node_idx].directional_cost[i] /= counters[i];
         }
-
-        VTR_LOG("%g %g %g %g %d %d %d %d\n", route_ctx.rr_node_route_inf[node_idx].occ(), route_ctx.rr_node_route_inf[node_idx].directional_cost[0],
-        route_ctx.rr_node_route_inf[node_idx].directional_cost[1],route_ctx.rr_node_route_inf[node_idx].directional_cost[2],route_ctx.rr_node_route_inf[node_idx].directional_cost[3],
-        counters[0], counters[1], counters[2], counters[3]);
 
     }
 }
@@ -135,7 +135,7 @@ void compute_directional_lookahead(const RRGraphView& rr_graph, RoutingContext& 
 float get_directional_cong_cost(RoutingContext& route_ctx, RRNodeId from_node, RRNodeId to_node, const t_conn_cost_params& params) {
     auto dir = get_direction(from_node, to_node);
     auto dir_cost = route_ctx.rr_node_route_inf[from_node].directional_cost[dir];
-    return dir_cost * (1 - params.bend_cost);
+    return dir_cost * (1 - params.criticality) * params.dir_scale_fac;
 }
 
 /**
