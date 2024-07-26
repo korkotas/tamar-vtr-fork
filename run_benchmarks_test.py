@@ -3,30 +3,27 @@ import subprocess
 import time
 
 # Define paths (update these paths to your setup)
-VTR_PATH = "/path/to/vtr"  # Path to your VTR installation
-BENCHMARKS_DIR = "/path/to/titan_benchmarks"  # Path to your Titan benchmarks
-ARCH_FILE = os.path.join(VTR_PATH, "arch/titan/titan_arch.xml")  # Path to the architecture file
+VTR_PATH = "~/tamar-vtr-fork/"  # Path to your repo
+BENCHMARKS_DIR = "~/tamar-vtr-fork/benchmarks/titan_blif/other_benchmarks/stratix10"  # Path to your Titan benchmarks
+ARCH_FILE = os.path.join(VTR_PATH, "arch/titan/stratix10_arch.timing.xml")  # Path to the architecture file
 
 # List of Titan benchmarks to run (ensure these are the correct names)
 BENCHMARKS = [
-    "ch_intrinsics",
-    "ch_intrinsics_4bit",
-    "ch_intrinsics_tiny",
-    "clma",
-    "clma_p1",
-    "clma_p2",
+    "murax_stratix10_arch_timing",
+    "picosoc_Stratix10_arch_timing",
+    "radar20_stratix10_arch_timing"
     # Add other benchmarks as needed
 ]
 
 # Output directory
-OUTPUT_DIR = "./vtr_results"  # Directory for output results
+OUTPUT_DIR = "~/vtr_results"  # Directory for output results
 
 # Create the output directory if it doesn't exist
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 def run_vtr_flow(benchmark):
     benchmark_path = os.path.join(BENCHMARKS_DIR, benchmark)
-    circuit_file = os.path.join(benchmark_path, f"{benchmark}.v")  # Verilog file for the benchmark
+    circuit_file = os.path.join(benchmark_path, f"{benchmark}.blif")  # Verilog file for the benchmark
     output_prefix = os.path.join(OUTPUT_DIR, benchmark)
 
     if not os.path.isfile(circuit_file):
@@ -40,10 +37,8 @@ def run_vtr_flow(benchmark):
         os.path.join(VTR_PATH, "vtr_flow/scripts/run_vtr_flow.py"),
         circuit_file,
         ARCH_FILE,
-        "--route_chan_width", "100",  # Example route channel width, adjust if needed
-        "--output_prefix", output_prefix,
-        "--timing_analysis", "on",
-        "--max_router_iterations", "50"  # Adjust this parameter if needed
+        "--dynamic_lookahead", "on",
+        "--comp_iterations", "10"
     ]
 
     # Run the VTR flow
