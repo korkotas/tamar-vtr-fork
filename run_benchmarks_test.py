@@ -4,7 +4,7 @@ import time
 
 # Define paths (update these paths to your setup)
 VTR_PATH = "~/tamar-vtr-fork/"  # Path to your repo
-BENCHMARKS_DIR = "~/tamar-vtr-fork/benchmarks/titan_blif/other_benchmarks/stratix10"  # Path to your Titan benchmarks
+BENCHMARKS_DIR = "~/tamar-vtr-fork/benchmarks/titan_blif/other_benchmarks/stratix10/"  # Path to your Titan benchmarks
 ARCH_FILE = os.path.join(VTR_PATH, "arch/titan/stratix10_arch.timing.xml")  # Path to the architecture file
 
 # List of Titan benchmarks to run (ensure these are the correct names)
@@ -22,8 +22,7 @@ OUTPUT_DIR = "~/vtr_results"  # Directory for output results
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 def run_vtr_flow(benchmark):
-    benchmark_path = os.path.join(BENCHMARKS_DIR, benchmark)
-    circuit_file = os.path.join(benchmark_path, f"{benchmark}.blif")  # Verilog file for the benchmark
+    circuit_file = os.path.join(BENCHMARKS_DIR, f"{benchmark}.blif")  # Verilog file for the benchmark
     output_prefix = os.path.join(OUTPUT_DIR, benchmark)
 
     if not os.path.isfile(circuit_file):
