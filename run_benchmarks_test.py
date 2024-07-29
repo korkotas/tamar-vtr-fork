@@ -3,20 +3,44 @@ import subprocess
 import time
 
 # Define paths (update these paths to your setup)
-VTR_PATH = "~/tamar-vtr-fork/"  # Path to your repo
-BENCHMARKS_DIR = "~/tamar-vtr-fork/benchmarks/titan_blif/other_benchmarks/stratix10/"  # Path to your Titan benchmarks
-ARCH_FILE = os.path.join(VTR_PATH, "arch/titan/stratix10_arch.timing.xml")  # Path to the architecture file
+VTR_PATH = "/home/tkorkot/tamar-vtr-fork/build/vpr/vpr"  # Path to your repo
+BENCHMARKS_DIR_TITAN = "/home/tkorkot/tamar-vtr-fork/vtr_flow/benchmarks/titan_blif/other_benchmarks/stratix10"  # Path to your Titan benchmarks
+BENCHMARKS_DIR = "/home/tkorkot/tamar-vtr-fork/vtr_flow/benchmarks/blif"
+ARCH_FILE_TITAN = "/home/tkorkot/tamar-vtr-fork/vtr_flow/arch/titan/stratix10_arch.timing.xml"  # Path to the architecture file
+ARCH_FILE = "/home/tkorkot/tamar-vtr-fork/vtr_flow/arch/timing/k6_N10_40nm.xml"  # Path to the architecture file
 
-# List of Titan benchmarks to run (ensure these are the correct names)
-BENCHMARKS = [
+# List of Titan benchmarks to run 
+# List of the MCNC20 Benchmarks to run
+BENCHMARKS_TITAN = [
     "murax_stratix10_arch_timing",
     "picosoc_Stratix10_arch_timing",
     "radar20_stratix10_arch_timing"
-    # Add other benchmarks as needed
+]
+
+BENCHMARKS = [
+    "alu4",
+    "apex2",
+    "bigkey",
+    "clma",
+    "des",
+    "diffeq",
+    "dsip",
+    "elliptic",
+    "ex1010",
+    "ex5p",
+    "frisc",
+    "misex3",
+    "pdc",
+    "s298",
+    "s38417",
+    "s38584.1",
+    "seq",
+    "spla",
+    "tseng"
 ]
 
 # Output directory
-OUTPUT_DIR = "~/vtr_results"  # Directory for output results
+OUTPUT_DIR = "/home/tkorkot/vtr_results"  # Directory for output results
 
 # Create the output directory if it doesn't exist
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -25,6 +49,7 @@ def run_vtr_flow(benchmark):
     circuit_file = os.path.join(BENCHMARKS_DIR, f"{benchmark}.blif")  # Verilog file for the benchmark
     output_prefix = os.path.join(OUTPUT_DIR, benchmark)
 
+    print(circuit_file)
     if not os.path.isfile(circuit_file):
         print(f"Circuit file for {benchmark} not found. Skipping...")
         return
@@ -33,11 +58,11 @@ def run_vtr_flow(benchmark):
 
     # Define the command to run VTR flow
     command = [
-        os.path.join(VTR_PATH, "vtr_flow/scripts/run_vtr_flow.py"),
-        circuit_file,
+        VTR_PATH,
         ARCH_FILE,
+        circuit_file,
         "--dynamic_lookahead", "on",
-        "--comp_iterations", "10"
+        "--comp_iters", "10"
     ]
 
     # Run the VTR flow
