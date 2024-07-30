@@ -54,8 +54,33 @@ def run_vtr_flow(benchmark):
         print(f"Circuit file for {benchmark} not found. Skipping...")
         return
 
-    print(f"Running VTR flow for benchmark: {benchmark}")
+    print(f"Running VTR flow for benchmark, without dynamic lookahead: {benchmark}")
 
+    # Define the command to run VTR flow
+    command = [
+        VTR_PATH,
+        ARCH_FILE,
+        circuit_file,
+        "--dynamic_lookahead", "off",
+    ]
+
+    # Run the VTR flow
+    result = subprocess.run(command, capture_output=True, text=True)
+
+    # Save the log output
+    log_file = f"{output_prefix}_without.log"
+    with open(log_file, "w") as f:
+        f.write(result.stdout)
+        f.write(result.stderr)
+
+    # Check for errors
+    if result.returncode != 0:
+        print(f"Error running VTR flow for {benchmark}. Check log: {log_file}")
+    else:
+        print(f"VTR flow completed for {benchmark}. Results saved to {output_prefix}_without.*")
+
+    print(f"Running VTR flow for benchmark, with dynamic lookahead: {benchmark}")    
+    
     # Define the command to run VTR flow
     command = [
         VTR_PATH,
@@ -69,7 +94,7 @@ def run_vtr_flow(benchmark):
     result = subprocess.run(command, capture_output=True, text=True)
 
     # Save the log output
-    log_file = f"{output_prefix}.log"
+    log_file = f"{output_prefix}_with.log"
     with open(log_file, "w") as f:
         f.write(result.stdout)
         f.write(result.stderr)
@@ -78,7 +103,8 @@ def run_vtr_flow(benchmark):
     if result.returncode != 0:
         print(f"Error running VTR flow for {benchmark}. Check log: {log_file}")
     else:
-        print(f"VTR flow completed for {benchmark}. Results saved to {output_prefix}.*")
+        print(f"VTR flow completed for {benchmark}. Results saved to {output_prefix}_with.*")
+
 
 def main():
     start_time = time.time()
