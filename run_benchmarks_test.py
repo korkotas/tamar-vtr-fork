@@ -18,12 +18,12 @@ BENCHMARKS_TITAN = [
 ]
 
 BENCHMARKS = [
-    "alu4",
-    "apex2",
-    "bigkey",
-    "clma",
-    "des",
-    "diffeq",
+    #"alu4",
+    #"apex2",
+    #"bigkey",
+    #"clma",
+    #"des",
+    #"diffeq",
     "dsip",
     "elliptic",
     "ex1010",
@@ -40,7 +40,7 @@ BENCHMARKS = [
 ]
 
 # Output directory
-OUTPUT_DIR = "/home/tkorkot/vtr_results"  # Directory for output results
+OUTPUT_DIR = "/home/tkorkot/tamar-vtr-fork/vtr_results"  # Directory for output results
 
 # Create the output directory if it doesn't exist
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -61,6 +61,7 @@ def run_vtr_flow(benchmark):
         VTR_PATH,
         ARCH_FILE,
         circuit_file,
+        "--max_router_iterations", "200",
         "--dynamic_lookahead", "off",
     ]
 
@@ -86,6 +87,7 @@ def run_vtr_flow(benchmark):
         VTR_PATH,
         ARCH_FILE,
         circuit_file,
+        "--max_router_iterations", "200",
         "--dynamic_lookahead", "on",
         "--comp_iters", "10"
     ]
