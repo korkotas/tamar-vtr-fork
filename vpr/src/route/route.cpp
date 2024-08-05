@@ -577,7 +577,7 @@ bool route(const Netlist<>& net_list,
          * 
         */
         if (router_opts.dynamic_lookahead) {
-            if (itry % router_opts.comp_iters == 0) {
+            if (itry >= router_opts.start_iter && itry % router_opts.comp_iters == 0) {
                 VTR_LOG("\n\n\n\n starting directional lookahead for itry %d\n", itry);
                 VTR_LOG("num nodes: %d\n", device_ctx.rr_graph.num_nodes());
                 VTR_LOG("pres factor %g\n", pres_fac);

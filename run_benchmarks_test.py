@@ -18,12 +18,12 @@ BENCHMARKS_TITAN = [
 ]
 
 BENCHMARKS = [
-    #"alu4",
-    #"apex2",
-    #"bigkey",
-    #"clma",
-    #"des",
-    #"diffeq",
+    "alu4",
+    "apex2",
+    "bigkey",
+    "clma",
+    "des",
+    "diffeq",
     "dsip",
     "elliptic",
     "ex1010",
@@ -54,31 +54,9 @@ def run_vtr_flow(benchmark):
         print(f"Circuit file for {benchmark} not found. Skipping...")
         return
 
-    print(f"Running VTR flow for benchmark, without dynamic lookahead: {benchmark}")
-
-    # Define the command to run VTR flow
-    command = [
-        VTR_PATH,
-        ARCH_FILE,
-        circuit_file,
-        "--max_router_iterations", "200",
-        "--dynamic_lookahead", "off",
-    ]
-
-    # Run the VTR flow
-    result = subprocess.run(command, capture_output=True, text=True)
-
-    # Save the log output
-    log_file = f"{output_prefix}_without.log"
-    with open(log_file, "w") as f:
-        f.write(result.stdout)
-        f.write(result.stderr)
-
-    # Check for errors
-    if result.returncode != 0:
-        print(f"Error running VTR flow for {benchmark}. Check log: {log_file}")
-    else:
-        print(f"VTR flow completed for {benchmark}. Results saved to {output_prefix}_without.*")
+    dir_scale_fac = "0.0000000001"
+    comp_iters = "5"
+    cost_func = "1"
 
     print(f"Running VTR flow for benchmark, with dynamic lookahead: {benchmark}")    
     
@@ -88,15 +66,18 @@ def run_vtr_flow(benchmark):
         ARCH_FILE,
         circuit_file,
         "--max_router_iterations", "200",
+        "--dir_scale_fac", dir_scale_fac,
+        "--cost_func", cost_func, 
         "--dynamic_lookahead", "on",
-        "--comp_iters", "10"
+        "--comp_iters", comp_iters,
+        "--route_chan_width", "200"
     ]
 
     # Run the VTR flow
     result = subprocess.run(command, capture_output=True, text=True)
 
     # Save the log output
-    log_file = f"{output_prefix}_with.log"
+    log_file = f"{output_prefix}_with_{dir_scale_fac}_{comp_iters}_{cost_func}.log"
     with open(log_file, "w") as f:
         f.write(result.stdout)
         f.write(result.stderr)
@@ -105,7 +86,7 @@ def run_vtr_flow(benchmark):
     if result.returncode != 0:
         print(f"Error running VTR flow for {benchmark}. Check log: {log_file}")
     else:
-        print(f"VTR flow completed for {benchmark}. Results saved to {output_prefix}_with.*")
+        print(f"VTR flow completed for {benchmark}. Results saved to {output_prefix}_with_1.2_5_iters_100.log")
 
 
 def main():

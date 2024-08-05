@@ -125,6 +125,11 @@ void compute_directional_lookahead(const RRGraphView& rr_graph, RoutingContext& 
                 route_ctx.rr_node_route_inf[node_idx].directional_cost[i] /= counters[i];
         }
 
+        // VTR_LOG("%g %g %g %g\n", route_ctx.rr_node_route_inf[node_idx].directional_cost[0],
+        // route_ctx.rr_node_route_inf[node_idx].directional_cost[1],
+        // route_ctx.rr_node_route_inf[node_idx].directional_cost[2],
+        // route_ctx.rr_node_route_inf[node_idx].directional_cost[3]);
+
     }
 }
 

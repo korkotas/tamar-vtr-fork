@@ -1487,6 +1487,7 @@ struct t_router_opts {
     std::string cost_func; 
     int comp_iters; 
     float dir_scale_fac;
+    int start_iter;
 };
 
 struct t_analysis_opts {
