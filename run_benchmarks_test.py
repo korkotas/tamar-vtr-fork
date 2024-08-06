@@ -13,7 +13,7 @@ ARCH_FILE = "/home/tkorkot/tamar-vtr-fork/vtr_flow/arch/timing/k6_N10_40nm.xml" 
 # List of the MCNC20 Benchmarks to run
 BENCHMARKS_TITAN = [
     "murax_stratix10_arch_timing",
-    "picosoc_Stratix10_arch_timing",
+    "picosoc_stratix10_arch_timing",
     "radar20_stratix10_arch_timing"
 ]
 
@@ -55,7 +55,7 @@ def run_vtr_flow(benchmark):
         return
 
     dir_scale_fac = "0.0000000001"
-    comp_iters = "5"
+    comp_iters = "1"
     cost_func = "1"
 
     print(f"Running VTR flow for benchmark, with dynamic lookahead: {benchmark}")    
@@ -70,14 +70,15 @@ def run_vtr_flow(benchmark):
         "--cost_func", cost_func, 
         "--dynamic_lookahead", "on",
         "--comp_iters", comp_iters,
-        "--route_chan_width", "200"
+        "--route_chan_width", "100"
     ]
 
     # Run the VTR flow
     result = subprocess.run(command, capture_output=True, text=True)
 
     # Save the log output
-    log_file = f"{output_prefix}_with_{dir_scale_fac}_{comp_iters}_{cost_func}.log"
+    log_file = f"{output_prefix}_with_{dir_scale_fac}_{comp_iters}_{cost_func}_100.log"
+    #log_file = f"{output_prefix}_without.log"
     with open(log_file, "w") as f:
         f.write(result.stdout)
         f.write(result.stderr)
@@ -86,7 +87,7 @@ def run_vtr_flow(benchmark):
     if result.returncode != 0:
         print(f"Error running VTR flow for {benchmark}. Check log: {log_file}")
     else:
-        print(f"VTR flow completed for {benchmark}. Results saved to {output_prefix}_with_1.2_5_iters_100.log")
+        print(f"VTR flow completed for {benchmark}. Results saved to {log_file}")
 
 
 def main():
