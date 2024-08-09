@@ -55,7 +55,7 @@ def run_vtr_flow(benchmark):
         return
 
     dir_scale_fac = "0.0000000001"
-    comp_iters = "5"
+    comp_iters = "1"
     cost_func = "1"
 
     print(f"Running VTR flow for benchmark, with dynamic lookahead: {benchmark}")    
@@ -68,7 +68,7 @@ def run_vtr_flow(benchmark):
         "--max_router_iterations", "200",
         "--dir_scale_fac", dir_scale_fac,
         "--cost_func", cost_func, 
-        "--dynamic_lookahead", "on",
+        "--dynamic_lookahead", "off",
         "--comp_iters", comp_iters
         #"--route_chan_width", "100"
     ]
@@ -77,8 +77,8 @@ def run_vtr_flow(benchmark):
     result = subprocess.run(command, capture_output=True, text=True)
 
     # Save the log output
-    log_file = f"{output_prefix}_with_{dir_scale_fac}_{comp_iters}_{cost_func}_binary.log"
-    #log_file = f"{output_prefix}_without.log"
+    #log_file = f"{output_prefix}_with_{dir_scale_fac}_{comp_iters}_{cost_func}_binary.log"
+    log_file = f"{output_prefix}_without_binary.log"
     with open(log_file, "w") as f:
         f.write(result.stdout)
         f.write(result.stderr)
