@@ -905,7 +905,7 @@ void ConnectionRouter<Heap>::add_route_tree_node_to_heap(
         //                                                              target_node,
         //                                                              cost_params,
         //                                                              R_upstream));
-        VTR_LOG("AFTER DIRECTIONAL %g\n", get_directional_cong_cost(route_ctx, inode, target_node, cost_params));                                                             
+        // VTR_LOG("AFTER DIRECTIONAL %g\n", get_directional_cong_cost(route_ctx, inode, target_node, cost_params));                                                             
         VTR_LOGV_DEBUG(router_debug_, "  Adding node %8d to heap from init route tree with cost %g (%s)\n",
                        inode,
                        tot_cost,

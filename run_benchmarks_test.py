@@ -18,25 +18,50 @@ BENCHMARKS_TITAN = [
 ]
 
 BENCHMARKS = [
-    "alu4",
-    "apex2",
-    "bigkey",
-    "clma",
-    "des",
-    "diffeq",
-    "dsip",
-    "elliptic",
-    "ex1010",
-    "ex5p",
-    "frisc",
-    "misex3",
-    "pdc",
-    "s298",
-    "s38417",
-    "s38584.1",
-    "seq",
-    "spla",
-    "tseng"
+    #"alu4",
+    # "apex2",
+    # "bigkey",
+    # "clma",
+    # "des",
+    # "diffeq",
+    # "dsip",
+    # "elliptic",
+    # "ex1010",
+    # "ex5p",
+    # "frisc",
+    # "misex3",
+    # "pdc",
+    # "s298",
+    # "s38417",
+    # "s38584.1",
+    # "seq",
+     "spla",
+    # "tseng"
+]
+
+ROUTE_CHAN_WIDTHS = [
+    #34, # 34 Same for 1 and 5, alu4
+    # 48, # 46 for 1 and 52 for 5, apex2
+    # 38, # 38 Same for 1 and 5, bigkey
+    # 64, # 66 Same for 1 and 5, clma
+    # 34, # 36 Same for 1 and 5, des
+    # 36, # 38 Same for 1 and 5, diffeq
+    # 36, # 36 Same for 1 nad 5, dsip
+    # 48, # 48 for 1 and 50 for 5, elliptic
+    # 52, # 56 for 1 and 52 for 5, ex1010
+    # 52, # 52 Same for 1 and 5, ex5p
+    # 58, # 60 Same for 1 and 5, frisc
+    # 44, # 46 Same for 1 and 5, misex3
+    # 74, # 76 Same for 1 and 5, pdc
+    # 24, # 24 Same for 1 and 5, s298
+    # 34, # 36 Same for 1 and 5, s38417
+    # 40, # 40 Same for 1 and 5, s38584.1
+    # 46, # 52 Same for 1 and 5, seq
+     62, # 64 Same for 1 and 5, spla
+    # 34, # 34 Same for 1 and 5, tseng 
+
+    
+    
 ]
 
 # Output directory
@@ -45,7 +70,7 @@ OUTPUT_DIR = "/home/tkorkot/tamar-vtr-fork/vtr_results"  # Directory for output 
 # Create the output directory if it doesn't exist
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-def run_vtr_flow(benchmark):
+def run_vtr_flow(benchmark, width):
     circuit_file = os.path.join(BENCHMARKS_DIR, f"{benchmark}.blif")  # Verilog file for the benchmark
     output_prefix = os.path.join(OUTPUT_DIR, benchmark)
 
@@ -55,7 +80,7 @@ def run_vtr_flow(benchmark):
         return
 
     dir_scale_fac = "0.0000000001"
-    comp_iters = "1"
+    comp_iters = "5"
     cost_func = "1"
 
     print(f"Running VTR flow for benchmark, with dynamic lookahead: {benchmark}")    
@@ -68,33 +93,59 @@ def run_vtr_flow(benchmark):
         "--max_router_iterations", "200",
         "--dir_scale_fac", dir_scale_fac,
         "--cost_func", cost_func, 
-        "--dynamic_lookahead", "off",
-        "--comp_iters", comp_iters
-        #"--route_chan_width", "100"
+        "--dynamic_lookahead", "on",
+        "--comp_iters", comp_iters,
+        "--route_chan_width", str(width),
+        "--save_routing_per_iteration", "on"
     ]
 
     # Run the VTR flow
     result = subprocess.run(command, capture_output=True, text=True)
 
     # Save the log output
-    #log_file = f"{output_prefix}_with_{dir_scale_fac}_{comp_iters}_{cost_func}_binary.log"
-    log_file = f"{output_prefix}_without_binary.log"
+    log_file = f"{output_prefix}_with_{dir_scale_fac}_{comp_iters}_{cost_func}_min_width*1.3.log"
+    
     with open(log_file, "w") as f:
         f.write(result.stdout)
         f.write(result.stderr)
 
-    # Check for errors
-    if result.returncode != 0:
-        print(f"Error running VTR flow for {benchmark}. Check log: {log_file}")
-    else:
-        print(f"VTR flow completed for {benchmark}. Results saved to {log_file}")
+    # log_file = f"{output_prefix}_without_min_width*1.3.log"
+    
+    # # Define the command to run VTR flow
+    # command = [
+    #     VTR_PATH,
+    #     ARCH_FILE,
+    #     circuit_file,
+    #     "--max_router_iterations", "200",
+    #     "--dir_scale_fac", dir_scale_fac,
+    #     "--cost_func", cost_func, 
+    #     "--dynamic_lookahead", "off",
+    #     "--comp_iters", comp_iters,
+    #     "--route_chan_width", str(width)
+    # ]
+
+    # # Run the VTR flow
+    # result = subprocess.run(command, capture_output=True, text=True)
+
+    # with open(log_file, "w") as f:
+    #     f.write(result.stdout)
+    #     f.write(result.stderr)
+    # # Check for errors
+    # if result.returncode != 0:
+    #     print(f"Error running VTR flow for {benchmark}. Check log: {log_file}")
+    # else:
+    #     print(f"VTR flow completed for {benchmark}. Results saved to {log_file}")
 
 
 def main():
     start_time = time.time()
 
-    for benchmark in BENCHMARKS:
-        run_vtr_flow(benchmark)
+    for benchmark, width in zip(BENCHMARKS, ROUTE_CHAN_WIDTHS):
+        width = int(width * 1.3)
+        if width % 2 == 1:
+            width += 1
+        print(benchmark, width)
+        run_vtr_flow(benchmark, width)
 
     end_time = time.time()
     elapsed_time = end_time - start_time
