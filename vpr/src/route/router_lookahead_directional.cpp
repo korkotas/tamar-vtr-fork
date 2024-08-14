@@ -24,7 +24,7 @@
  * @param hops the number of hops for exponential decay
  * @param route_ctx the routing context
 */
-float cost_func(const RRGraphView& rr_graph, RRNodeId node_idx, int hops, RoutingContext& route_ctx, float pres_fac, bool cost_func_param) {
+float cost_func(RRNodeId node_idx, int hops, RoutingContext& route_ctx, float pres_fac, bool cost_func_param) {
     float present_cost = route_ctx.rr_node_route_inf[node_idx].occ();
     if (present_cost < 0) 
         present_cost = 0;
@@ -72,7 +72,7 @@ void sum_neighbors(const RRGraphView& rr_graph, RRNodeId node_idx, RRNodeId pare
     // Add the cost of the current node
     auto direction = get_direction(parent_idx, node_idx);
     counters[direction]++;
-    route_ctx.rr_node_route_inf[parent_idx].directional_cost[direction] += cost_func(rr_graph, node_idx, hops, route_ctx, pres_fac, cost_func_param);
+    route_ctx.rr_node_route_inf[parent_idx].directional_cost[direction] += cost_func(node_idx, hops, route_ctx, pres_fac, cost_func_param);
 
     // Keep track of already visited nodes
     fx.insert(node_idx);

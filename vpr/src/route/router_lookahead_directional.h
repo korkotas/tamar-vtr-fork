@@ -26,7 +26,7 @@ typedef enum {
 } Cong_Direction;
 
 // Function for calculating the cost for the lookahead
-float cost_func(const RRGraphView& rr_graph, RRNodeId node_idx, int hops, RoutingContext& route_ctx, float pres_fac, bool cost_func_param);
+float cost_func(RRNodeId node_idx, int hops, RoutingContext& route_ctx, float pres_fac, bool cost_func_param);
 
 // Function to get direction based on the difference in x and y coordinates
 Cong_Direction get_direction(RRNodeId from_node, RRNodeId to_node);
