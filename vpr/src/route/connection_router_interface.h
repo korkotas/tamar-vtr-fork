@@ -27,6 +27,10 @@ struct t_conn_cost_params {
     float pres_fac = 1.;
     const t_conn_delay_budget* delay_budget = nullptr;
 
+    // Dynamic lookahead parameters
+    //bool cost_func = 0;
+    float dir_scale_fac = 1.2;
+
     //TODO: Eventually once delay budgets are working, t_conn_delay_budget
     //should be factoured out, and the delay budget parameters integrated
     //into this struct instead. For now left as a pointer to control whether

@@ -128,6 +128,7 @@ void SetupVPR(const t_options* Options,
     FileNameOpts->ArchFile = Options->ArchFile;
     FileNameOpts->CircuitFile = Options->CircuitFile;
     FileNameOpts->NetFile = Options->NetFile;
+    FileNameOpts->FlatPlaceFile = Options->FlatPlaceFile;
     FileNameOpts->PlaceFile = Options->PlaceFile;
     FileNameOpts->RouteFile = Options->RouteFile;
     FileNameOpts->ActFile = Options->ActFile;
@@ -136,6 +137,8 @@ void SetupVPR(const t_options* Options,
     FileNameOpts->out_file_prefix = Options->out_file_prefix;
     FileNameOpts->read_vpr_constraints_file = Options->read_vpr_constraints_file;
     FileNameOpts->write_vpr_constraints_file = Options->write_vpr_constraints_file;
+    FileNameOpts->write_constraints_file = Options->write_constraints_file;
+    FileNameOpts->write_flat_place_file = Options->write_flat_place_file;
     FileNameOpts->write_block_usage = Options->write_block_usage;
 
     FileNameOpts->verify_file_digests = Options->verify_file_digests;
@@ -239,6 +242,7 @@ void SetupVPR(const t_options* Options,
     //Setup the default flow, if no specific stages specified
     //do all
     if (!Options->do_packing
+        && !Options->do_legalize
         && !Options->do_placement
         && !Options->do_routing
         && !Options->do_analysis) {
@@ -274,6 +278,11 @@ void SetupVPR(const t_options* Options,
 
         if (Options->do_packing) {
             PackerOpts->doPacking = STAGE_DO;
+        }
+
+        if (Options->do_legalize) {
+            PackerOpts->doPacking = STAGE_LOAD;
+            PackerOpts->load_flat_placement = true;
         }
     }
 
@@ -487,6 +496,15 @@ static void SetupRouterOpts(const t_options& Options, t_router_opts* RouterOpts)
     RouterOpts->flat_routing = Options.flat_routing;
     RouterOpts->has_choking_spot = Options.has_choking_spot;
     RouterOpts->with_timing_analysis = Options.timing_analysis;
+
+
+    // Set dynamic lookahead options
+    RouterOpts->dynamic_lookahead = Options.dynamic_lookahead;
+    RouterOpts->cost_func = Options.cost_func;
+    RouterOpts->comp_iters = int(Options.comp_iters);
+    RouterOpts->dir_scale_fac = float(Options.dir_scale_fac);
+    RouterOpts->start_iter = int(Options.start_iter);
+    RouterOpts->end_iter = int(Options.end_iter);
 }
 
 static void SetupAnnealSched(const t_options& Options,
@@ -744,9 +762,20 @@ static void SetupNocOpts(const t_options& Options, t_noc_opts* NocOpts) {
     NocOpts->noc_latency_constraints_weighting = Options.noc_latency_constraints_weighting;
     NocOpts->noc_latency_weighting = Options.noc_latency_weighting;
     NocOpts->noc_congestion_weighting = Options.noc_congestion_weighting;
-    NocOpts->noc_swap_percentage = Options.noc_swap_percentage;
     NocOpts->noc_centroid_weight = Options.noc_centroid_weight;
+    NocOpts->noc_swap_percentage = Options.noc_swap_percentage;
+    NocOpts->noc_sat_routing_bandwidth_resolution = Options.noc_sat_routing_bandwidth_resolution;
+    NocOpts->noc_sat_routing_latency_overrun_weighting = Options.noc_sat_routing_latency_overrun_weighting_factor;
+    NocOpts->noc_sat_routing_congestion_weighting = Options.noc_sat_routing_congestion_weighting_factor;
+    if (Options.noc_sat_routing_num_workers.provenance() == argparse::Provenance::SPECIFIED) {
+        NocOpts->noc_sat_routing_num_workers = Options.noc_sat_routing_num_workers;
+    } else {
+        NocOpts->noc_sat_routing_num_workers = (int)Options.num_workers;
+    }
+    NocOpts->noc_sat_routing_log_search_progress = Options.noc_sat_routing_log_search_progress;
     NocOpts->noc_placement_file_name = Options.noc_placement_file_name;
+
+
 }
 
 static void SetupServerOpts(const t_options& Options, t_server_opts* ServerOpts) {

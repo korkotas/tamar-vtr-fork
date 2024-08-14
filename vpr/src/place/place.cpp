@@ -647,9 +647,6 @@ void try_place(const Netlist<>& net_list,
     move_lim = (int)(annealing_sched.inner_num
                      * pow(net_list.blocks().size(), 1.3333));
 
-    //create the move generator based on the chosen strategy
-    create_move_generators(move_generator, move_generator2, placer_opts, move_lim, noc_opts.noc_centroid_weight);
-
     alloc_and_load_placement_structs(placer_opts.place_cost_exp, placer_opts, noc_opts, directs, num_directs);
 
     vtr::ScopedStartFinishTimer timer("Placement");
@@ -661,6 +658,9 @@ void try_place(const Netlist<>& net_list,
     initial_placement(placer_opts,
                       placer_opts.constraints_file.c_str(),
                       noc_opts);
+
+    //create the move generator based on the chosen strategy
+    create_move_generators(move_generator, move_generator2, placer_opts, move_lim, noc_opts.noc_centroid_weight);
 
     if (!placer_opts.write_initial_place_file.empty()) {
         print_place(nullptr,
@@ -821,28 +821,11 @@ void try_place(const Netlist<>& net_list,
                 placer_opts.place_algorithm,
                 noc_opts);
 
-    //Initial pacement statistics
+    //Initial placement statistics
     VTR_LOG("Initial placement cost: %g bb_cost: %g td_cost: %g\n", costs.cost,
             costs.bb_cost, costs.timing_cost);
     if (noc_opts.noc) {
-        VTR_LOG(
-            "NoC Placement Costs. "
-            "cost: %g, "
-            "aggregate_bandwidth_cost: %g, "
-            "latency_cost: %g, "
-            "n_met_latency_constraints: %d, "
-            "latency_overrun_cost: %g, "
-            "congestion_cost: %g, "
-            "accum_congested_ratio: %g, "
-            "n_congested_links: %d \n",
-            calculate_noc_cost(costs.noc_cost_terms, costs.noc_cost_norm_factors, noc_opts),
-            costs.noc_cost_terms.aggregate_bandwidth,
-            costs.noc_cost_terms.latency,
-            get_number_of_traffic_flows_with_latency_cons_met(),
-            costs.noc_cost_terms.latency_overrun,
-            costs.noc_cost_terms.congestion,
-            get_total_congestion_bandwidth_ratio(),
-            get_number_of_congested_noc_links());
+        print_noc_costs("Initial NoC Placement Costs", costs, noc_opts);
     }
     if (placer_opts.place_algorithm.is_timing_driven()) {
         VTR_LOG(
@@ -874,26 +857,7 @@ void try_place(const Netlist<>& net_list,
     sprintf(msg,
             "Initial Placement.  Cost: %g  BB Cost: %g  TD Cost %g \t Channel Factor: %d",
             costs.cost, costs.bb_cost, costs.timing_cost, width_fac);
-    if (noc_opts.noc) {
-        sprintf(msg,
-                "\nInitial NoC Placement Costs. "
-                "cost: %g, "
-                "aggregate_bandwidth_cost: %g, "
-                "latency_cost: %g, "
-                "n_met_latency_constraints: %d, "
-                "latency_overrun_cost: %g, "
-                "congestion_cost: %g, "
-                "accum_congested_ratio: %g, "
-                "n_congested_links: %d \n",
-                calculate_noc_cost(costs.noc_cost_terms, costs.noc_cost_norm_factors, noc_opts),
-                costs.noc_cost_terms.aggregate_bandwidth,
-                costs.noc_cost_terms.latency,
-                get_number_of_traffic_flows_with_latency_cons_met(),
-                costs.noc_cost_terms.latency_overrun,
-                costs.noc_cost_terms.congestion,
-                get_total_congestion_bandwidth_ratio(),
-                get_number_of_congested_noc_links());
-    }
+
     //Draw the initial placement
     update_screen(ScreenUpdatePriority::MAJOR, msg, PLACEMENT, timing_info);
 
@@ -1203,44 +1167,16 @@ void try_place(const Netlist<>& net_list,
             costs.bb_cost, costs.timing_cost);
     // print the noc costs info
     if (noc_opts.noc) {
-        sprintf(msg,
-                "\nNoC Placement Costs. "
-                "cost: %g, "
-                "aggregate_bandwidth_cost: %g, "
-                "latency_cost: %g, "
-                "n_met_latency_constraints: %d, "
-                "latency_overrun_cost: %g, "
-                "congestion_cost: %g, "
-                "accum_congested_ratio: %g, "
-                "n_congested_links: %d \n",
-                calculate_noc_cost(costs.noc_cost_terms, costs.noc_cost_norm_factors, noc_opts),
-                costs.noc_cost_terms.aggregate_bandwidth,
-                costs.noc_cost_terms.latency,
-                get_number_of_traffic_flows_with_latency_cons_met(),
-                costs.noc_cost_terms.latency_overrun,
-                costs.noc_cost_terms.congestion,
-                get_total_congestion_bandwidth_ratio(),
-                get_number_of_congested_noc_links());
+        print_noc_costs("\nNoC Placement Costs", costs, noc_opts);
 
-        VTR_LOG(
-            "\nNoC Placement Costs. "
-            "cost: %g, "
-            "aggregate_bandwidth_cost: %g, "
-            "latency_cost: %g, "
-            "n_met_latency_constraints: %d, "
-            "latency_overrun_cost: %g, "
-            "congestion_cost: %g, "
-            "accum_congested_ratio: %g, "
-            "n_congested_links: %d \n",
-            calculate_noc_cost(costs.noc_cost_terms, costs.noc_cost_norm_factors, noc_opts),
-            costs.noc_cost_terms.aggregate_bandwidth,
-            costs.noc_cost_terms.latency,
-            get_number_of_traffic_flows_with_latency_cons_met(),
-            costs.noc_cost_terms.latency_overrun,
-            costs.noc_cost_terms.congestion,
-            get_total_congestion_bandwidth_ratio(),
-            get_number_of_congested_noc_links());
+#ifdef ENABLE_NOC_SAT_ROUTING
+        if (costs.noc_cost_terms.congestion > 0.0) {
+            VTR_LOG("NoC routing configuration is congested. Invoking the SAT NoC router.\n");
+            invoke_sat_router(costs, noc_opts, placer_opts.seed);
+        }
+#endif //ENABLE_NOC_SAT_ROUTING
     }
+
     update_screen(ScreenUpdatePriority::MAJOR, msg, PLACEMENT, timing_info);
     // Print out swap statistics
     print_resources_utilization();
@@ -3400,7 +3336,7 @@ static void update_bb(ClusterNetId net_id,
                 bb_edge_new.xmax = curr_bb_edge->xmax - 1;
                 bb_coord_new.xmax = curr_bb_coord->xmax;
             }
-        } else { /* Move to left, old postion was not at xmax. */
+        } else { /* Move to left, old position was not at xmax. */
             bb_coord_new.xmax = curr_bb_coord->xmax;
             bb_edge_new.xmax = curr_bb_edge->xmax;
         }
@@ -4475,14 +4411,13 @@ static void print_placement_move_types_stats(const MoveTypeStat& move_type_stat)
 
 
     auto& device_ctx = g_vpr_ctx.device();
-    auto& cluster_ctx = g_vpr_ctx.clustering();
     int count = 0;
     int num_of_avail_moves = move_type_stat.blk_type_moves.size() / device_ctx.logical_block_types.size();
 
     //Print placement information for each block type
     for (const auto& itype : device_ctx.logical_block_types) {
         //Skip non-existing block types in the netlist
-        if (itype.index == 0 || cluster_ctx.clb_nlist.blocks_per_type(itype).empty()) {
+        if (itype.index == 0 || movable_blocks_per_type(itype).empty()) {
             continue;
         }
 

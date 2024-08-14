@@ -13,6 +13,8 @@
 #include "vtr_time.h"
 #include "glob.h"
 
+#include "router_lookahead_directional.h"
+
 bool route(const Netlist<>& net_list,
            int width_fac,
            const t_router_opts& router_opts,
@@ -229,7 +231,7 @@ bool route(const Netlist<>& net_list,
     int itry_since_last_convergence = -1;
 
     // This heap is used for reserve_locally_used_opins.
-    BinaryHeap small_heap;
+    FourAryHeap small_heap;
     small_heap.init_heap(device_ctx.grid);
 
     // When RCV is enabled the router will not stop unless negative hold slack is 0
@@ -242,6 +244,7 @@ bool route(const Netlist<>& net_list,
 
     print_route_status_header();
     for (itry = 1; itry <= router_opts.max_router_iterations; ++itry) {
+
         /* Reset "is_routed" and "is_fixed" flags to indicate nets not pre-routed (yet) */
         for (auto net_id : net_list.nets()) {
             route_ctx.net_status.set_is_routed(net_id, false);
@@ -562,7 +565,30 @@ bool route(const Netlist<>& net_list,
         if (router_opts.congestion_analysis) profiling::congestion_analysis();
         if (router_opts.fanout_analysis) profiling::time_on_fanout_analysis();
         // profiling::time_on_criticality_analysis();
+
+        /**
+         * 
+         * 
+         * 
+         * Supposedly everything has already been updated here
+         * 
+         * 
+         * 
+         * 
+        */
+        if (router_opts.dynamic_lookahead) {
+            if (itry >= router_opts.end_iter)
+                continue;
+
+            if (itry >= router_opts.start_iter && itry % router_opts.comp_iters == 0) {
+                VTR_LOG("\n\n\n\nStarting directional lookahead for itry %d\n", itry);
+                compute_directional_lookahead(device_ctx.rr_graph, route_ctx, pres_fac, (router_opts.cost_func == "acc"));
+            }
+        }
+        
     }
+
+    
 
     /* Write out partition tree logs (no-op if debug option not set) */
     PartitionTreeDebug::write("partition_tree.log");
