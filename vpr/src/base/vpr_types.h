@@ -1488,6 +1488,7 @@ struct t_router_opts {
     int comp_iters; 
     float dir_scale_fac;
     int start_iter;
+    int end_iter;
 };
 
 struct t_analysis_opts {

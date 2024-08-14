@@ -2977,6 +2977,12 @@ argparse::ArgumentParser create_arg_parser(const std::string& prog_name, t_optio
         .default_value("1")
         .show_in(argparse::ShowIn::HELP_ONLY);
 
+    dyn_lookahead_grp.add_argument<int>(args.end_iter, "--end_iter")
+        .help(
+            "Specifies after which iteration does the dynamic lookahead recomputation end")
+        .default_value("1000")
+        .show_in(argparse::ShowIn::HELP_ONLY);
+
 #ifndef NO_SERVER
     auto& server_grp = parser.add_argument_group("server options");
 

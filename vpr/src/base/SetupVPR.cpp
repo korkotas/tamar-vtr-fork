@@ -504,6 +504,7 @@ static void SetupRouterOpts(const t_options& Options, t_router_opts* RouterOpts)
     RouterOpts->comp_iters = int(Options.comp_iters);
     RouterOpts->dir_scale_fac = float(Options.dir_scale_fac);
     RouterOpts->start_iter = int(Options.start_iter);
+    RouterOpts->end_iter = int(Options.end_iter);
 }
 
 static void SetupAnnealSched(const t_options& Options,

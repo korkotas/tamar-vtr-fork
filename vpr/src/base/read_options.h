@@ -261,6 +261,7 @@ struct t_options {
     argparse::ArgValue<int> comp_iters; // Recompute in this amount of iterations
     argparse::ArgValue<float> dir_scale_fac; // Dynamic lookahead multiplying factor
     argparse::ArgValue<int> start_iter; // Which iteration the dynamic lookahead starts
+    argparse::ArgValue<int> end_iter; // Which iteration the dynamic lookahead recomputation ends
 };
 
 argparse::ArgumentParser create_arg_parser(const std::string& prog_name, t_options& args);
